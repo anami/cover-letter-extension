@@ -357,6 +357,72 @@
     ::-webkit-scrollbar { width: 5px; }
     ::-webkit-scrollbar-track { background: transparent; }
     ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 99px; }
+
+    /* ── Ollama setup modal ── */
+    #ollama-modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(26, 24, 20, 0.6);
+      z-index: 100;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+    #ollama-modal.visible { display: flex; }
+    #ollama-modal-box {
+      background: var(--paper);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 24px;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    #ollama-modal-box h2 {
+      font-family: var(--font-display);
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--ink);
+    }
+    #ollama-modal-box p {
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+    #ollama-modal-box ol {
+      padding-left: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    #ollama-modal-box li {
+      font-size: 12px;
+      color: var(--ink);
+      line-height: 1.6;
+    }
+    #ollama-modal-box code {
+      font-family: monospace;
+      font-size: 11.5px;
+      background: var(--cream);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 2px 6px;
+    }
+    #ollama-modal-box pre {
+      background: var(--ink);
+      color: var(--paper);
+      border-radius: 6px;
+      padding: 10px 12px;
+      font-size: 11.5px;
+      font-family: monospace;
+      line-height: 1.7;
+      overflow-x: auto;
+    }
+    #ollama-modal-dismiss {
+      align-self: flex-end;
+    }
   </style>
 </head>
 <body>
@@ -496,6 +562,29 @@
     </div>
 
   </div><!-- /scroll-body -->
+</div>
+
+<div id="ollama-modal">
+  <div id="ollama-modal-box">
+    <h2>Ollama not detected</h2>
+    <p>This extension generates cover letters locally using Ollama. To get started:</p>
+    <ol>
+      <li>
+        <strong>Install Ollama</strong> from <code>ollama.ai</code> if you haven't already.
+      </li>
+      <li>
+        <strong>Run Ollama server with extension origins:</strong>
+        <pre>OLLAMA_ORIGINS=chrome-extension://* ollama serve</pre>
+      </li>
+      <li>
+        <strong>Start Ollama and pull a model:</strong>
+        <pre>ollama serve
+ollama pull llama3.2</pre>
+      </li>
+      <li>Restart Ollama, then reload this panel.</li>
+    </ol>
+    <button class="btn-primary" id="ollama-modal-dismiss">Got it</button>
+  </div>
 </div>
 
 <script src="sidepanel.js"></script>

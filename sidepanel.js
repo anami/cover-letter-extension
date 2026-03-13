@@ -39,6 +39,8 @@ const btnRegenerate       = document.getElementById("btn-regenerate");
 const ollamaStatusDot     = document.getElementById("ollama-status-dot");
 const ollamaStatusText    = document.getElementById("ollama-status-text");
 const modelSelect         = document.getElementById("model-select");
+const ollamaModal         = document.getElementById("ollama-modal");
+const ollamaModalDismiss  = document.getElementById("ollama-modal-dismiss");
 
 // ── Ollama health check ────────────────────────────────────────────────────────
 async function checkOllamaStatus() {
@@ -64,8 +66,14 @@ async function checkOllamaStatus() {
     ollamaStatusDot.className    = "stopped";
     ollamaStatusText.textContent = "Ollama not running";
     modelSelect.style.display    = "none";
+
+    ollamaModal.classList.add("visible");
   }
 }
+
+ollamaModalDismiss.addEventListener("click", () => {
+  ollamaModal.classList.remove("visible");
+});
 
 checkOllamaStatus();
 
