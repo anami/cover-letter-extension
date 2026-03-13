@@ -346,8 +346,8 @@
     <div class="install-step">
       <div class="install-step-num">2</div>
       <div>
-        <p><strong>Allow the extension origin</strong> (required once on macOS):</p>
-        <pre>launchctl setenv OLLAMA_ORIGINS "chrome-extension://*"</pre>
+        <p><strong>Run the Ollama service with custom origins:</strong></p>
+        <pre>OLLAMA_ORIGINS=chrome-extension://* ollama serve</pre>
         <p style="margin-top:6px;font-size:13px;color:var(--muted)">Then restart Ollama.</p>
       </div>
     </div>
