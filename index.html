@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cover Letter Writer — AI-powered Chrome Extension</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --ink:     #1a1814;
+      --paper:   #f7f4ef;
+      --cream:   #ede9e1;
+      --muted:   #8c8880;
+      --accent:  #c0392b;
+      --accent2: #e8cfc7;
+      --border:  #d8d3cb;
+      --success: #2d6a4f;
+      --font-display: 'Playfair Display', Georgia, serif;
+      --font-body:    'DM Sans', sans-serif;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--paper);
+      color: var(--ink);
+      font-family: var(--font-body);
+      font-size: 16px;
+      line-height: 1.6;
+    }
+
+    /* ── Nav ── */
+    nav {
+      position: sticky;
+      top: 0;
+      background: var(--ink);
+      color: var(--paper);
+      padding: 14px 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      z-index: 10;
+    }
+    nav .logo {
+      font-family: var(--font-display);
+      font-size: 18px;
+      font-weight: 700;
+    }
+    nav a {
+      color: #a09a92;
+      text-decoration: none;
+      font-size: 14px;
+      transition: color 0.15s;
+    }
+    nav a:hover { color: var(--paper); }
+    nav .nav-links { display: flex; gap: 24px; }
+
+    /* ── Hero ── */
+    .hero {
+      background: var(--ink);
+      color: var(--paper);
+      padding: 80px 32px 72px;
+      text-align: center;
+    }
+    .hero h1 {
+      font-family: var(--font-display);
+      font-size: clamp(36px, 6vw, 60px);
+      font-weight: 700;
+      line-height: 1.1;
+      margin-bottom: 20px;
+    }
+    .hero h1 span { color: #e8cfc7; }
+    .hero p {
+      font-size: 18px;
+      color: #a09a92;
+      max-width: 560px;
+      margin: 0 auto 36px;
+    }
+    .btn {
+      display: inline-block;
+      padding: 14px 28px;
+      border-radius: 6px;
+      font-family: var(--font-body);
+      font-size: 14px;
+      font-weight: 500;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      text-decoration: none;
+      transition: all 0.15s;
+      cursor: pointer;
+      border: none;
+    }
+    .btn-primary { background: var(--accent); color: white; }
+    .btn-primary:hover { background: #a93226; }
+    .btn-outline { background: transparent; border: 1px solid #a09a92; color: #a09a92; margin-left: 12px; }
+    .btn-outline:hover { border-color: var(--paper); color: var(--paper); }
+
+    .privacy-note {
+      margin-top: 20px;
+      font-size: 12px;
+      color: #5a554f;
+    }
+    .privacy-note span {
+      display: inline-block;
+      width: 6px; height: 6px;
+      background: var(--success);
+      border-radius: 50%;
+      margin-right: 6px;
+      vertical-align: middle;
+    }
+
+    /* ── How it works ── */
+    section { padding: 72px 32px; max-width: 900px; margin: 0 auto; }
+
+    h2 {
+      font-family: var(--font-display);
+      font-size: clamp(26px, 4vw, 36px);
+      font-weight: 700;
+      margin-bottom: 12px;
+    }
+    .section-label {
+      font-size: 11px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--accent);
+      font-weight: 500;
+      margin-bottom: 8px;
+    }
+    .section-sub {
+      color: var(--muted);
+      font-size: 16px;
+      margin-bottom: 48px;
+    }
+
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 24px;
+    }
+    .step {
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 24px;
+    }
+    .step-num {
+      font-family: var(--font-display);
+      font-size: 32px;
+      font-weight: 700;
+      color: var(--accent2);
+      line-height: 1;
+      margin-bottom: 12px;
+    }
+    .step h3 { font-size: 15px; font-weight: 500; margin-bottom: 6px; }
+    .step p  { font-size: 13px; color: var(--muted); }
+
+    /* ── Features ── */
+    .features-section { background: var(--cream); padding: 72px 32px; }
+    .features-section > div { max-width: 900px; margin: 0 auto; }
+
+    .features {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 20px;
+      margin-top: 48px;
+    }
+    .feature {
+      display: flex;
+      gap: 14px;
+      align-items: flex-start;
+    }
+    .feature-icon {
+      width: 36px; height: 36px;
+      background: var(--ink);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .feature-icon svg { stroke: var(--paper); }
+    .feature h3 { font-size: 14px; font-weight: 500; margin-bottom: 4px; }
+    .feature p  { font-size: 13px; color: var(--muted); }
+
+    /* ── Install ── */
+    .install-section { border-top: 1px solid var(--border); }
+    .install-steps {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      margin-top: 32px;
+    }
+    .install-step {
+      display: flex;
+      gap: 16px;
+      align-items: flex-start;
+    }
+    .install-step-num {
+      width: 28px; height: 28px;
+      background: var(--ink);
+      color: var(--paper);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 600;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+    .install-step p { font-size: 14px; }
+    .install-step code {
+      font-family: monospace;
+      font-size: 12.5px;
+      background: var(--cream);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 2px 7px;
+    }
+    pre {
+      background: var(--ink);
+      color: #c9c4bc;
+      border-radius: 6px;
+      padding: 14px 18px;
+      font-size: 13px;
+      font-family: monospace;
+      line-height: 1.7;
+      margin-top: 8px;
+      overflow-x: auto;
+    }
+
+    /* ── Footer ── */
+    footer {
+      background: var(--ink);
+      color: #5a554f;
+      text-align: center;
+      padding: 32px;
+      font-size: 13px;
+    }
+    footer a { color: #a09a92; text-decoration: none; }
+    footer a:hover { color: var(--paper); }
+  </style>
+</head>
+<body>
+
+<nav>
+  <span class="logo">Cover Letter Writer</span>
+  <div class="nav-links">
+    <a href="#how-it-works">How it works</a>
+    <a href="#install">Install</a>
+    <a href="https://github.com/anami/cover-letter-extension">GitHub</a>
+  </div>
+</nav>
+
+<!-- Hero -->
+<div class="hero">
+  <h1>Write better cover letters,<br><span>entirely on your machine.</span></h1>
+  <p>An AI-powered Chrome extension that generates personalised cover letters using your local Ollama instance. No cloud, no subscriptions, no data leaving your device.</p>
+  <a href="#install" class="btn btn-primary">Get the extension</a>
+  <a href="https://github.com/anami/cover-letter-extension" class="btn btn-outline">View on GitHub</a>
+  <p class="privacy-note"><span></span>100% local — your CV and job descriptions never leave your computer</p>
+</div>
+
+<!-- How it works -->
+<section id="how-it-works">
+  <p class="section-label">How it works</p>
+  <h2>From job listing to cover letter in seconds.</h2>
+  <p class="section-sub">Open the side panel on any job listing page and follow these steps.</p>
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">01</div>
+      <h3>Upload your CV</h3>
+      <p>Drop in your CV as a <code>.md</code> or <code>.txt</code> file. Your name is extracted automatically.</p>
+    </div>
+    <div class="step">
+      <div class="step-num">02</div>
+      <h3>Extract the job description</h3>
+      <p>Click "Extract from page" to pull the job description automatically, or paste it manually.</p>
+    </div>
+    <div class="step">
+      <div class="step-num">03</div>
+      <h3>Generate</h3>
+      <p>Hit Generate and watch your cover letter stream in, powered by your local Ollama model.</p>
+    </div>
+    <div class="step">
+      <div class="step-num">04</div>
+      <h3>Copy &amp; send</h3>
+      <p>Copy the finished letter to your clipboard and paste it wherever you need it.</p>
+    </div>
+  </div>
+</section>
+
+<!-- Features -->
+<div class="features-section">
+  <div>
+    <p class="section-label">Features</p>
+    <h2>Built for privacy and control.</h2>
+    <div class="features">
+      <div class="feature">
+        <div class="feature-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+        <div>
+          <h3>Fully local</h3>
+          <p>Runs on Ollama — your data never touches an external server.</p>
+        </div>
+      </div>
+      <div class="feature">
+        <div class="feature-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/></svg></div>
+        <div>
+          <h3>Any Ollama model</h3>
+          <p>Pick any model you have installed — llama3.2, mistral, and more.</p>
+        </div>
+      </div>
+      <div class="feature">
+        <div class="feature-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
+        <div>
+          <h3>Auto page extraction</h3>
+          <p>Pulls job descriptions from any page — including LinkedIn.</p>
+        </div>
+      </div>
+      <div class="feature">
+        <div class="feature-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke-width="2"><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="14" y2="12"/><line x1="4" y1="18" x2="18" y2="18"/></svg></div>
+        <div>
+          <h3>Custom instructions</h3>
+          <p>Add tone, length, or style instructions to tailor every letter.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Install -->
+<section id="install" class="install-section">
+  <p class="section-label">Installation</p>
+  <h2>Get set up in a few minutes.</h2>
+  <div class="install-steps">
+    <div class="install-step">
+      <div class="install-step-num">1</div>
+      <div>
+        <p><strong>Install Ollama</strong> from <a href="https://ollama.ai">ollama.ai</a> and pull a model.</p>
+        <pre>ollama pull llama3.2</pre>
+      </div>
+    </div>
+    <div class="install-step">
+      <div class="install-step-num">2</div>
+      <div>
+        <p><strong>Allow the extension origin</strong> (required once on macOS):</p>
+        <pre>launchctl setenv OLLAMA_ORIGINS "chrome-extension://*"</pre>
+        <p style="margin-top:6px;font-size:13px;color:var(--muted)">Then restart Ollama.</p>
+      </div>
+    </div>
+    <div class="install-step">
+      <div class="install-step-num">3</div>
+      <div>
+        <p><strong>Download and load the extension.</strong></p>
+        <p style="margin-top:6px;font-size:13px;color:var(--muted)">
+          <a href="https://github.com/anami/cover-letter-extension/archive/refs/heads/main.zip">Download the zip</a>, unzip it, then open <code>chrome://extensions</code>, enable Developer Mode, and click <strong>Load unpacked</strong>.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <p>Cover Letter Writer &mdash; open source, MIT licensed &mdash; <a href="https://github.com/anami/cover-letter-extension">GitHub</a></p>
+</footer>
+
+</body>
+</html>
