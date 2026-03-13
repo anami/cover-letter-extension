@@ -16,7 +16,23 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       }
       chrome.tabs.sendMessage(tabs[0].id, { type: "GET_PAGE_TEXT" }, (response) => {
         if (chrome.runtime.lastError) {
-          sendResponse({ error: chrome.runtime.lastError.message });
+          // Content script not running (e.g. SPA navigation) — inject it and retry
+          chrome.scripting.executeScript(
+            { target: { tabId: tabs[0].id }, files: ["content.js"] },
+            () => {
+              if (chrome.runtime.lastError) {
+                sendResponse({ error: chrome.runtime.lastError.message });
+                return;
+              }
+              chrome.tabs.sendMessage(tabs[0].id, { type: "GET_PAGE_TEXT" }, (response2) => {
+                if (chrome.runtime.lastError) {
+                  sendResponse({ error: chrome.runtime.lastError.message });
+                } else {
+                  sendResponse(response2);
+                }
+              });
+            }
+          );
         } else {
           sendResponse(response);
         }

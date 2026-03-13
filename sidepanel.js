@@ -26,7 +26,8 @@ const cvPasteNameDisp = document.getElementById("cv-paste-name-display");
 
 const jobDesc         = document.getElementById("job-desc");
 const jobPill         = document.getElementById("job-pill");
-const closing         = document.getElementById("closing");
+const closing             = document.getElementById("closing");
+const extraInstructions   = document.getElementById("extra-instructions");
 const btnExtract      = document.getElementById("btn-extract");
 const extractStatus   = document.getElementById("extract-status-text");
 const btnGenerate     = document.getElementById("btn-generate");
@@ -325,6 +326,8 @@ function buildPrompt() {
     ? `End the cover letter with this closing line: "${closing.value.trim()}"`
     : "End with a professional closing line.";
 
+  const extra = extraInstructions.value.trim();
+
   return `You are an expert cover letter writer. Write a professional, compelling, and personalised cover letter.
 
 ${name}
@@ -343,7 +346,7 @@ ${jobDesc.value.trim()}
 - Do NOT include a date or address block.
 - Start directly with "Dear Hiring Manager," or use the company name if visible in the job description.
 - ${closingNote}
-- Sign off with the applicant's name${userName ? ` (${userName})` : ""}.
+- Sign off with the applicant's name${userName ? ` (${userName})` : ""}.${extra ? `\n- ${extra.split("\n").join("\n- ")}` : ""}
 
 Write the cover letter now:`;
 }
