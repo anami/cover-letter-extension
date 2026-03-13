@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cover Letter Writer</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --ink:      #1a1814;
+      --paper:    #f7f4ef;
+      --cream:    #ede9e1;
+      --muted:    #8c8880;
+      --accent:   #c0392b;
+      --accent2:  #e8cfc7;
+      --border:   #d8d3cb;
+      --success:  #2d6a4f;
+      --radius:   6px;
+      --font-display: 'Playfair Display', Georgia, serif;
+      --font-body:    'DM Sans', sans-serif;
+    }
+
+    html, body {
+      background: var(--paper);
+      color: var(--ink);
+      font-family: var(--font-body);
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    #app {
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── Header ── */
+    header {
+      padding: 16px 18px 12px;
+      border-bottom: 1px solid var(--border);
+      background: var(--ink);
+      color: var(--paper);
+      flex-shrink: 0;
+    }
+    header h1 {
+      font-family: var(--font-display);
+      font-size: 17px;
+      font-weight: 700;
+      letter-spacing: 0.01em;
+    }
+    header p {
+      font-size: 11px;
+      color: #a09a92;
+      margin-top: 2px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    #ollama-status-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #a09a92;
+      flex-shrink: 0;
+      transition: background 0.3s;
+    }
+    #ollama-status-dot.running  { background: #4caf82; }
+    #ollama-status-dot.stopped  { background: #e05c5c; }
+    #model-select {
+      background: transparent;
+      border: none;
+      color: #a09a92;
+      font-family: var(--font-body);
+      font-size: 11px;
+      cursor: pointer;
+      outline: none;
+      padding: 0;
+      max-width: 160px;
+    }
+    #model-select option { background: #1a1814; color: var(--paper); }
+    #model-select:disabled { opacity: 0.5; cursor: default; }
+
+    /* ── Body ── */
+    #scroll-body {
+      padding: 16px 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    /* ── Collapsible Section ── */
+    .section {
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 14px;
+      background: var(--cream);
+      font-weight: 500;
+      font-size: 11.5px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--muted);
+      cursor: pointer;
+      user-select: none;
+      border-bottom: 1px solid transparent;
+      transition: background 0.15s, border-color 0.15s;
+    }
+    .section-header:hover { background: var(--accent2); }
+    .section.open .section-header { border-bottom-color: var(--border); }
+
+    .section-header .dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--accent);
+      flex-shrink: 0;
+    }
+    .section-header .title-text { flex: 1; }
+
+    .section-header .badge {
+      font-size: 10px;
+      opacity: 0.55;
+      font-weight: 400;
+      letter-spacing: 0.02em;
+      text-transform: none;
+    }
+
+    .section-header .status-pill {
+      font-size: 10px;
+      padding: 2px 7px;
+      border-radius: 99px;
+      background: #eaf4ee;
+      color: var(--success);
+      border: 1px solid #b7dfc4;
+      font-weight: 500;
+      letter-spacing: 0;
+      text-transform: none;
+      display: none;
+    }
+    .section-header .status-pill.visible { display: inline-block; }
+
+    /* Chevron */
+    .chevron {
+      width: 14px; height: 14px;
+      flex-shrink: 0;
+      transition: transform 0.22s ease;
+      opacity: 0.45;
+    }
+    .section.open .chevron { transform: rotate(180deg); }
+
+    /* Collapsible body using grid trick for smooth animation */
+    .section-body-wrap {
+      display: grid;
+      grid-template-rows: 0fr;
+      transition: grid-template-rows 0.25s ease;
+    }
+    .section.open .section-body-wrap {
+      grid-template-rows: 1fr;
+    }
+    .section-body-inner { overflow: hidden; }
+    .section.open .section-body-inner { overflow: visible; }
+    .section-body { padding: 12px 14px; }
+
+    /* ── CV input tabs ── */
+    .cv-tabs {
+      display: flex;
+      gap: 4px;
+      margin-bottom: 10px;
+    }
+    .cv-tab {
+      font-family: var(--font-body);
+      font-size: 11.5px;
+      padding: 4px 12px;
+      border-radius: 99px;
+      border: 1px solid var(--border);
+      background: var(--paper);
+      color: var(--muted);
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .cv-tab.active {
+      background: var(--ink);
+      color: var(--paper);
+      border-color: var(--ink);
+    }
+    .cv-tab:not(.active):hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    .cv-input-panel { display: none; }
+    .cv-input-panel.active { display: block; }
+
+    /* ── Upload area ── */
+    #cv-drop {
+      border: 1.5px dashed var(--border);
+      border-radius: var(--radius);
+      padding: 18px 12px;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color 0.2s, background 0.2s;
+      background: var(--paper);
+    }
+    #cv-drop:hover, #cv-drop.dragover {
+      border-color: var(--accent);
+      background: var(--accent2);
+    }
+    #cv-drop svg { opacity: 0.4; margin-bottom: 6px; }
+    #cv-drop p { font-size: 12px; color: var(--muted); }
+    #cv-drop span { font-size: 11px; color: var(--muted); }
+    #cv-file-input { display: none; }
+
+    #cv-loaded {
+      display: none;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 12px;
+      background: #eaf4ee;
+      border: 1px solid #b7dfc4;
+      border-radius: var(--radius);
+    }
+    #cv-loaded.visible { display: flex; }
+    #cv-loaded .cv-name { font-size: 12px; flex: 1; font-weight: 500; color: var(--success); }
+
+    /* Paste panel helper row */
+    .paste-actions {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 6px;
+      gap: 8px;
+      align-items: center;
+    }
+    .paste-actions .paste-name {
+      font-size: 11px;
+      color: var(--success);
+      flex: 1;
+    }
+
+    /* ── Textarea ── */
+    textarea {
+      width: 100%;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--paper);
+      color: var(--ink);
+      font-family: var(--font-body);
+      font-size: 12.5px;
+      line-height: 1.55;
+      padding: 9px 11px;
+      resize: vertical;
+      transition: border-color 0.2s;
+      outline: none;
+    }
+    textarea:focus { border-color: var(--accent); }
+    textarea::placeholder { color: #b0aa9f; }
+
+    /* ── Extract button row ── */
+    .extract-row {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 8px;
+      align-items: center;
+    }
+    .extract-row span {
+      font-size: 11px;
+      color: var(--muted);
+      flex: 1;
+    }
+
+    /* ── Buttons ── */
+    button {
+      font-family: var(--font-body);
+      cursor: pointer;
+      border: none;
+      border-radius: var(--radius);
+      transition: all 0.15s;
+    }
+    .btn-ghost {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      font-size: 11.5px;
+      padding: 5px 10px;
+    }
+    .btn-ghost:hover { border-color: var(--accent); color: var(--accent); }
+
+    .btn-primary {
+      background: var(--ink);
+      color: var(--paper);
+      font-size: 13px;
+      font-weight: 500;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      padding: 11px 20px;
+      width: 100%;
+    }
+    .btn-primary:hover:not(:disabled) { background: var(--accent); }
+    .btn-primary:disabled { opacity: 0.45; cursor: not-allowed; }
+
+    .btn-copy {
+      background: var(--cream);
+      border: 1px solid var(--border);
+      color: var(--ink);
+      font-size: 11.5px;
+      padding: 6px 12px;
+    }
+    .btn-copy:hover { background: var(--accent2); }
+
+    /* ── Status ── */
+    #status {
+      display: none;
+      font-size: 11.5px;
+      padding: 7px 12px;
+      border-radius: var(--radius);
+      border: 1px solid transparent;
+    }
+    #status.info    { display: block; background: #e8f0fe; border-color: #b3ccf8; color: #1a4490; }
+    #status.error   { display: block; background: #fde8e8; border-color: #f5b5b5; color: #8b1a1a; }
+    #status.success { display: block; background: #eaf4ee; border-color: #b7dfc4; color: var(--success); }
+
+    /* ── Output ── */
+    #output-section { display: none; }
+    #output-section.visible { display: block; }
+
+    #output-text {
+      min-height: 80px;
+      white-space: pre-wrap;
+      word-break: break-word;
+      font-size: 12.5px;
+      line-height: 1.7;
+      color: var(--ink);
+    }
+    .output-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    /* ── Generating cursor ── */
+    .generating #output-text::after {
+      content: "▋";
+      animation: blink 0.8s steps(1) infinite;
+      color: var(--accent);
+    }
+    @keyframes blink { 0%,100%{ opacity:1 } 50%{ opacity:0 } }
+
+    /* ── Scrollbar ── */
+    ::-webkit-scrollbar { width: 5px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 99px; }
+  </style>
+</head>
+<body>
+<div id="app">
+  <header>
+    <h1>Cover Letter Writer</h1>
+    <p><span id="ollama-status-dot"></span><span id="ollama-status-text">Checking Ollama…</span><select id="model-select" style="display:none" disabled></select></p>
+  </header>
+
+  <div id="scroll-body">
+
+    <!-- ── CV Section ── -->
+    <div class="section open" id="section-cv">
+      <div class="section-header" data-toggle="section-cv">
+        <span class="dot"></span>
+        <span class="title-text">Your CV</span>
+        <span class="status-pill" id="cv-pill"></span>
+        <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="section-body-wrap">
+        <div class="section-body-inner">
+          <div class="section-body">
+            <!-- Mode tabs -->
+            <div class="cv-tabs">
+              <button class="cv-tab active" data-tab="upload">Upload file</button>
+              <button class="cv-tab" data-tab="paste">Paste text</button>
+            </div>
+
+            <!-- Upload panel -->
+            <div class="cv-input-panel active" id="cv-panel-upload">
+              <div id="cv-drop" role="button" tabindex="0" aria-label="Upload CV">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
+                <p>Drop your CV here or <strong>click to browse</strong></p>
+                <span>Markdown (.md) or plain text (.txt)</span>
+              </div>
+              <input type="file" id="cv-file-input" accept=".md,.txt,.markdown" />
+              <div id="cv-loaded">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2d6a4f" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                <span class="cv-name" id="cv-filename"></span>
+                <button id="cv-clear" class="btn-ghost">Remove</button>
+              </div>
+            </div>
+
+            <!-- Paste panel -->
+            <div class="cv-input-panel" id="cv-panel-paste">
+              <textarea id="cv-paste-text" rows="9" placeholder="Paste your CV here — markdown or plain text…"></textarea>
+              <div class="paste-actions">
+                <span class="paste-name" id="cv-paste-name-display"></span>
+                <button class="btn-ghost" id="cv-paste-clear">Clear</button>
+                <button class="btn-ghost" id="cv-paste-apply" style="border-color:var(--ink);color:var(--ink);">✓ Apply</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Job Description Section ── -->
+    <div class="section open" id="section-job">
+      <div class="section-header" data-toggle="section-job">
+        <span class="dot"></span>
+        <span class="title-text">Job Description</span>
+        <span class="status-pill" id="job-pill"></span>
+        <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="section-body-wrap">
+        <div class="section-body-inner">
+          <div class="section-body">
+            <div class="extract-row">
+              <span id="extract-status-text">Paste or extract from current page</span>
+              <button class="btn-ghost" id="btn-extract">↓ Extract from page</button>
+            </div>
+            <textarea id="job-desc" rows="7" placeholder="Paste the job description here, or click Extract to pull from the current page…"></textarea>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Closing Line Section ── -->
+    <div class="section" id="section-closing">
+      <div class="section-header" data-toggle="section-closing">
+        <span class="dot"></span>
+        <span class="title-text">Closing Line</span>
+        <span class="badge">(optional)</span>
+        <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="section-body-wrap">
+        <div class="section-body-inner">
+          <div class="section-body">
+            <textarea id="closing" rows="2" placeholder="e.g. I look forward to discussing how I can contribute to your team…"></textarea>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Status -->
+    <div id="status"></div>
+
+    <!-- Generate -->
+    <button class="btn-primary" id="btn-generate" disabled>Generate Cover Letter</button>
+
+    <!-- ── Output Section ── -->
+    <div class="section open" id="output-section">
+      <div class="section-header" data-toggle="output-section">
+        <span class="dot"></span>
+        <span class="title-text">Your Cover Letter</span>
+        <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="section-body-wrap">
+        <div class="section-body-inner">
+          <div class="section-body">
+            <div id="output-text"></div>
+            <div class="output-actions">
+              <button class="btn-copy" id="btn-copy">Copy to clipboard</button>
+              <button class="btn-ghost" id="btn-regenerate">Regenerate</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /scroll-body -->
+</div>
+
+<script src="sidepanel.js"></script>
+</body>
+</html>
